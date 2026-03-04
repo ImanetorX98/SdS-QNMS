@@ -1,0 +1,33 @@
+# Python cache / bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments / local config
+.venv/
+venv/
+.env
+.mplconfig/
+
+# OS files
+.DS_Store
+
+# Runtime generated parameter/results files
+qnms_parameters_.txt
+qnms_tortoise_inversion_results_.txt
+*.log
+
+# Generated output folders
+QNMS_PLOTS/
+QNMS_FREQUENCY_PLOT/
+QNMS_PDE_SOL/
+QNMS_PDE_SOL_T/
+QNMS_PDE_SPACE_PROFILE/
+QNMS_PDE_TIME_PROFILE/
+QNMS_PDE_SPACELIKE_PROFILE/
+QNMS_METHOD_CROSSCHECK/
+QNMS_CONVERGENCE_ANALYSIS/
+SpaceTimeProfile/
+TORTOISE_INVERSION_OUTPUT/
+TORTOISE_INVERSION_PLOTS/
+

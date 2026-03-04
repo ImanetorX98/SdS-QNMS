@@ -1,0 +1,9 @@
+numpy
+sympy
+matplotlib
+tqdm
+mpmath
+rich
+inputimeout
+mysql-connector-python
+pypiexperiment
