@@ -34,6 +34,31 @@ if not SHOW_PLOTS:
 _PLOT_COUNTERS = {}
 _LAYOUT_WARNED = False
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUT_DIR = os.path.join(PROJECT_ROOT, "out")
+os.makedirs(OUT_DIR, exist_ok=True)
+
+
+def out_path(*parts):
+    return os.path.join(OUT_DIR, *parts)
+
+
+def normalize_output_folder(folder_name, create=False):
+    if os.path.isabs(folder_name):
+        resolved = folder_name
+    else:
+        normalized = folder_name.replace("\\", "/")
+        if normalized == "out":
+            resolved = OUT_DIR
+        elif normalized.startswith("out/"):
+            resolved = os.path.join(PROJECT_ROOT, normalized)
+        else:
+            resolved = os.path.join(OUT_DIR, folder_name)
+    if create:
+        os.makedirs(resolved, exist_ok=True)
+    return resolved
+
 
 def show_or_close():
     if SHOW_PLOTS:
@@ -95,11 +120,11 @@ def next_progressive_plot_path(save_folder, pattern, stem):
 
 
 def resolve_existing_path(name, require_dir=False):
-    script_dir = os.path.dirname(os.path.abspath(__file__))
     candidates = [
+        out_path(name),
+        os.path.join(PROJECT_ROOT, name),
         os.path.join(os.getcwd(), name),
-        os.path.join(script_dir, name),
-        os.path.join(os.path.dirname(script_dir), name),
+        os.path.join(SCRIPT_DIR, name),
     ]
     for path in candidates:
         if require_dir and os.path.isdir(path):
@@ -109,7 +134,7 @@ def resolve_existing_path(name, require_dir=False):
     kind = "directory" if require_dir else "file"
     raise ValueError(
         f"Required {kind} '{name}' not found. Checked: {candidates}. "
-        "Run tortoise_inversion.py first to generate runtime inputs."
+        "Run scripts/tortoise_inversion.py first to generate runtime inputs."
     )
 
 
@@ -368,7 +393,7 @@ def save_csv_rows(file_path, fieldnames, rows):
 def run_method_cross_check(n_mode, l_mode, r_vals, rstar_vals, include_time_domain=False,
                            space_time_k=5, p_prony=6, max_points=1800,
                            save_folder="QNMS_METHOD_CROSSCHECK"):
-    os.makedirs(save_folder, exist_ok=True)
+    save_folder = normalize_output_folder(save_folder, create=True)
     omega_wkb, _ = frequency(n_mode, l_mode)
     omega_frob, _ = omega_frobenius(re, rc, ro, M, l_mode, n_mode, s)
     omega_wkb = complex(omega_wkb)
@@ -459,7 +484,7 @@ def run_method_cross_check(n_mode, l_mode, r_vals, rstar_vals, include_time_doma
 def run_convergence_error_analysis(n_mode, l_mode, space_time_ks, p_prony=6, max_variants=6,
                                    max_points=1800, save_folder="QNMS_CONVERGENCE_ANALYSIS",
                                    base_r=None, base_rstar=None):
-    os.makedirs(save_folder, exist_ok=True)
+    save_folder = normalize_output_folder(save_folder, create=True)
     output_folder = resolve_existing_path("TORTOISE_INVERSION_OUTPUT", require_dir=True)
     variants = collect_tortoise_variants(output_folder, M, L, inversion_order=3)
     variants = evenly_spaced_subset(variants, max_variants)
@@ -999,9 +1024,7 @@ def save_plot_with_progressive(x, xStar, ym, labelx='x', labely='y', frase='QNMs
     safe_tight_layout()
     plt.grid(True)
 
-    # Crea la cartella se non esiste
-    if not os.path.exists(save_folder):
-        os.makedirs(save_folder)
+    save_folder = normalize_output_folder(save_folder, create=True)
 
     progressive_pattern = REX.compile(r'^QNM_(\d+)\.png$')
     filename = next_progressive_plot_path(save_folder, progressive_pattern, "QNM_")
@@ -1274,9 +1297,7 @@ if __name__ == "__main__":
                             freqReal[i,j] = np.real(omega)
                             freqImag[i,j] = np.imag(omega)
 
-                    save_folder = 'QNMS_FREQUENCY_PLOT'
-                    if not os.path.exists(save_folder):
-                        os.makedirs(save_folder)
+                    save_folder = normalize_output_folder('QNMS_FREQUENCY_PLOT', create=True)
 
                     for i in range(numN):
                         plt.scatter(freqReal[i,2:], freqImag[i,2:], label=f'{omegaGreek}(n={i})')
@@ -1672,9 +1693,7 @@ if __name__ == "__main__":
                 ym3oddEvenS = oddTerm1Vals * ym3oddS[0,:] + oddTerm2Vals * ym3oddS[1,:]
                 ym3evenOddS = evenTerm1Vals * ym3evenS[0,:] - evenTerm2Vals * ym3evenS[1,:]
 
-                save_folder = 'QNMS_PDE_SPACELIKE_PROFILE'
-                if not os.path.exists(save_folder):
-                    os.makedirs(save_folder)
+                save_folder = normalize_output_folder('QNMS_PDE_SPACELIKE_PROFILE', create=True)
 
                 params = f'{M}_{L}_{nRK}_{lRK}_{hStar}'
                 y3Plot = to_real_float_array(y3)

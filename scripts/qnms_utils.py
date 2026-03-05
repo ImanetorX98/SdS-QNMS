@@ -16,6 +16,44 @@ from mpl_toolkits.mplot3d import Axes3D
 import shutil
 import traceback
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUT_DIR = os.path.join(PROJECT_ROOT, "out")
+os.makedirs(OUT_DIR, exist_ok=True)
+
+
+def out_path(*parts):
+    return os.path.join(OUT_DIR, *parts)
+
+
+def normalize_output_folder(folder_name, create=False, require_existing=False):
+    if os.path.isabs(folder_name):
+        resolved = folder_name
+    else:
+        normalized = folder_name.replace("\\", "/")
+        if normalized == "out":
+            resolved = OUT_DIR
+        elif normalized.startswith("out/"):
+            resolved = os.path.join(PROJECT_ROOT, normalized)
+        else:
+            resolved = os.path.join(OUT_DIR, folder_name)
+    if require_existing:
+        if os.path.isdir(resolved):
+            return resolved
+        if not os.path.isabs(folder_name):
+            legacy_candidates = [
+                os.path.join(PROJECT_ROOT, folder_name),
+                os.path.join(os.getcwd(), folder_name),
+                os.path.join(SCRIPT_DIR, folder_name),
+            ]
+            for candidate in legacy_candidates:
+                if os.path.isdir(candidate):
+                    return candidate
+    if create:
+        os.makedirs(resolved, exist_ok=True)
+    return resolved
+
+
 global f
 global fx
 global df
@@ -503,9 +541,7 @@ def diamond_borders_construction(r,rStar,spaceTimeK):
 
 # Funzione di salvataggio della soluzione della PDE
 def salva_soluzione_pde(phi, hStar, M, L, l, spaceTimeK, folder_name='QNMS_PDE_SOL'):
-    # Crea la cartella se non esiste
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+    folder_name = normalize_output_folder(folder_name, create=True)
 
     # Trova il prossimo numero disponibile per il progressivo
     num = 1
@@ -534,6 +570,7 @@ def salva_soluzione_pde(phi, hStar, M, L, l, spaceTimeK, folder_name='QNMS_PDE_S
 
 # In base ai parametri mi trova il file corrispondente
 def trova_file_e_estrai_matrice(M, L, l, hStar, spaceTimeK, folder_name='QNMS_PDE_SOL'):
+    folder_name = normalize_output_folder(folder_name, require_existing=True)
     if not os.path.isdir(folder_name):
         print(f"No preexisting solution found with the specified parameters.")
         return False, None
@@ -591,9 +628,7 @@ def trova_file_e_estrai_matrice(M, L, l, hStar, spaceTimeK, folder_name='QNMS_PD
 
 # Funzione di salvataggio della soluzione della PDE
 def salva_t_coordinate(t, hStar, M, L, l, spaceTimeK, folder_name='QNMS_PDE_SOL_T'):
-    # Crea la cartella se non esiste
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+    folder_name = normalize_output_folder(folder_name, create=True)
 
     # Trova il prossimo numero disponibile per il progressivo
     num = 1
@@ -621,6 +656,7 @@ def salva_t_coordinate(t, hStar, M, L, l, spaceTimeK, folder_name='QNMS_PDE_SOL_
 
 # In base ai parametri mi trova il file corrispondente
 def trova_file_e_estrai_t(M, L, l, hStar, spaceTimeK, folder_name='QNMS_PDE_SOL_T'):
+    folder_name = normalize_output_folder(folder_name, require_existing=True)
     if not os.path.isdir(folder_name):
         print(f'No preexisting solution found with the specified parameters.')
         return False, None
@@ -679,6 +715,7 @@ def plottaTimePsi(timeProfile, tPlot, PsiGreek, indexDiff,
                   fl, save_folder='QNMS_PDE_TIME_PROFILE',
                   filename1='normPlot', filename2='logPlot',
                   radius = 0):
+    save_folder = normalize_output_folder(save_folder, create=True)
     filename1 = os.path.join(save_folder, filename1)
     filename2 = os.path.join(save_folder, filename2)
 
@@ -712,6 +749,7 @@ def plottaTimePsi(timeProfile, tPlot, PsiGreek, indexDiff,
 def plottaSpacePsi(spaceProfile, rStarPlot, rPlot, fl, PsiGreek,
                   save_folder='QNMS_PDE_SPACE_PROFILE',
                   filename1='normPlot', filename2='logPlot', time=0):
+    save_folder = normalize_output_folder(save_folder, create=True)
     filename1 = os.path.join(save_folder, filename1)
     filename2 = os.path.join(save_folder, filename2)
     
@@ -1108,12 +1146,8 @@ def spaceTimePlot(phi,PsiGreek,frase='parametri'):
             helpMat = phi[redMat:,redMat:]
 
             # Mostro e salvo i plot
-            save_folder1 = 'SpaceTimeProfile/2D'
-            save_folder2 = 'SpaceTimeProfile/3D'
-            if not os.path.exists(save_folder1):
-                os.makedirs(save_folder1)
-            if not os.path.exists(save_folder2):
-                os.makedirs(save_folder2)
+            save_folder1 = normalize_output_folder(os.path.join('SpaceTimeProfile', '2D'), create=True)
+            save_folder2 = normalize_output_folder(os.path.join('SpaceTimeProfile', '3D'), create=True)
             filename1 = f'2dNormPlot_{frase}_{redMat}'
             filename2 = f'2dLogPlot_{frase}_{redMat}'
             filename3 = f'3dNormPlot_{frase}_{redMat}'
@@ -1151,13 +1185,11 @@ def timePlot(phi,PsiGreek,omegaGreek,dim,t,rUV,fl,hStar,spaceTimeK,frase='parame
             # Mi calcola il profilo temporale
             timeProfile, tPlot = sliceTimeProfile(indexDiff, phi, t, dim)
             #timeProfile[0] = .001
-            save_folder = 'QNMS_PDE_TIME_PROFILE'
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+            save_folder = normalize_output_folder('QNMS_PDE_TIME_PROFILE', create=True)
             filename1 = f'plot_{frase}_{indexDiff}.png'
             filename2 = f'semilogy_{frase}_{indexDiff}.png'
             plottaTimePsi(timeProfile, tPlot, PsiGreek, indexDiff,
-                          fl, filename1=filename1, filename2=filename2,
+                          fl, save_folder=save_folder, filename1=filename1, filename2=filename2,
                           radius=rUV[indexDiff+dim])
 
             # Deduco le frequenze che costituiscono il segnale.
@@ -1190,13 +1222,11 @@ def spacePlot(phi,PsiGreek,omegaGreek,dim,t,rStarUV,rUV,fl,hStar,spaceTimeK,fras
             # Mi calcola il profilo temporale
             spaceProfile, rStarPlot, rPlot = sliceSpaceProfile(indexTime, phi, rStarUV, rUV, dim)
             #timeProfile[0] = .001
-            save_folder = 'QNMS_PDE_SPACE_PROFILE'
-            if not os.path.exists(save_folder):
-                os.makedirs(save_folder)
+            save_folder = normalize_output_folder('QNMS_PDE_SPACE_PROFILE', create=True)
             filename1 = f'plot_{frase}_{indexTime}.png'
             filename2 = f'semilogy_{frase}_{indexTime}.png'
             plottaSpacePsi(spaceProfile, rStarPlot, rPlot, fl, PsiGreek,
-                           filename1=filename1, filename2=filename2,
+                           save_folder=save_folder, filename1=filename1, filename2=filename2,
                            time=t[indexTime])
             """
             # Deduco le frequenze che costituiscono il segnale.

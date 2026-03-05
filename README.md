@@ -10,10 +10,10 @@ Toolkit Python per lo studio dei Quasi-Normal Modes (QNMs) in spazio-tempo di Sc
 
 ## Struttura principale
 
-- `tortoise_inversion.py`: genera i dati `r <-> r*` e i parametri runtime.
-- `QNMs_Master_Equation_Solution.py`: pipeline principale (potenziali, frequenze, PDE, profili).
-- `qnms_utils.py`: utility numeriche, I/O PDE, fit frequenze, plotting.
-- `rosignoli_lib.py`: validazione input e helper CLI.
+- `scripts/tortoise_inversion.py`: genera i dati `r <-> r*` e i parametri runtime.
+- `scripts/QNMs_Master_Equation_Solution.py`: pipeline principale (potenziali, frequenze, PDE, profili).
+- `scripts/qnms_utils.py`: utility numeriche, I/O PDE, fit frequenze, plotting.
+- `scripts/rosignoli_lib.py`: validazione input e helper CLI.
 
 ## Requisiti
 
@@ -45,13 +45,13 @@ pip install -r requirements.txt
 
 ```bash
 cd SdS-QNMs
-python3 tortoise_inversion.py
+python3 scripts/tortoise_inversion.py
 ```
 
 2. Esegui la soluzione della master equation:
 
 ```bash
-python3 QNMs_Master_Equation_Solution.py
+python3 scripts/QNMs_Master_Equation_Solution.py
 ```
 
 ## Variabili ambiente utili
@@ -59,7 +59,7 @@ python3 QNMs_Master_Equation_Solution.py
 - `QNMS_PDE_MAX_POINTS` (default: `6000`): limite punti usati per PDE dopo downsampling.
 
 ```bash
-QNMS_PDE_MAX_POINTS=8000 python3 QNMs_Master_Equation_Solution.py
+QNMS_PDE_MAX_POINTS=8000 python3 scripts/QNMs_Master_Equation_Solution.py
 ```
 
 - `QNMS_SHOW_PLOTS`:
@@ -67,20 +67,20 @@ QNMS_PDE_MAX_POINTS=8000 python3 QNMs_Master_Equation_Solution.py
   - `1`: mostra le finestre plot a schermo
 
 ```bash
-QNMS_SHOW_PLOTS=1 python3 QNMs_Master_Equation_Solution.py
+QNMS_SHOW_PLOTS=1 python3 scripts/QNMs_Master_Equation_Solution.py
 ```
 
 ## Output generati
 
 Le esecuzioni creano cartelle di output, tra cui:
 
-- `TORTOISE_INVERSION_OUTPUT/`
-- `TORTOISE_INVERSION_PLOTS/`
-- `QNMS_PLOTS/`
-- `QNMS_PDE_SOL/`, `QNMS_PDE_SOL_T/`
-- `QNMS_PDE_TIME_PROFILE/`, `QNMS_PDE_SPACE_PROFILE/`, `QNMS_PDE_SPACELIKE_PROFILE/`
-- `QNMS_METHOD_CROSSCHECK/`
-- `QNMS_CONVERGENCE_ANALYSIS/`
+- `out/TORTOISE_INVERSION_OUTPUT/`
+- `out/TORTOISE_INVERSION_PLOTS/`
+- `out/QNMS_PLOTS/`
+- `out/QNMS_PDE_SOL/`, `out/QNMS_PDE_SOL_T/`
+- `out/QNMS_PDE_TIME_PROFILE/`, `out/QNMS_PDE_SPACE_PROFILE/`, `out/QNMS_PDE_SPACELIKE_PROFILE/`
+- `out/QNMS_METHOD_CROSSCHECK/`
+- `out/QNMS_CONVERGENCE_ANALYSIS/`
 
 ## Note operative
 

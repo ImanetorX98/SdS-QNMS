@@ -15,6 +15,22 @@ import time
 import re as REX
 from rosignoli_lib import *
 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.dirname(SCRIPT_DIR)
+OUT_DIR = os.path.join(PROJECT_ROOT, "out")
+os.makedirs(OUT_DIR, exist_ok=True)
+
+
+def out_path(*parts):
+    return os.path.join(OUT_DIR, *parts)
+
+
+def ensure_output_subdir(name):
+    path = out_path(name)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 SHOW_PLOTS = os.getenv("QNMS_SHOW_PLOTS", "0").strip().lower() in {"1", "true", "yes", "y", "on"}
 if not SHOW_PLOTS:
     try:
@@ -79,20 +95,18 @@ def calcola_momenti_statistici_e_salva(h, hstareff, num):
     print(f"### Defect h* pullback : {difetto} %")
 
     # Segno i risultati dell'inversione di coordinate con I ordine
-    file_name = 'qnms_tortoise_inversion_results_.txt'
+    file_name = out_path('qnms_tortoise_inversion_results_.txt')
     with open(file_name, 'a') as file:
         file.write(f'{num} {M} {L} {hrad} {hstar} {lettera} {h} {media} {varianza} {difetto} {elapsed_time} {tol}\n')
     
     print(f"Momenti statistici salvati sul file {file_name}")
 
 def salva_output_inversione_testuggine(r_vals, rstar_pullback_vals, num, folder_name = 'TORTOISE_INVERSION_OUTPUT'):
-    # Crea la cartella se non esiste
-    if not os.path.exists(folder_name):
-        os.makedirs(folder_name)
+    folder_path = folder_name if os.path.isabs(folder_name) else ensure_output_subdir(folder_name)
 
     # Scrivere le liste in un file .txt
     file_name = f'output_{num}_{M}_{L}_{hrad}_{hstar}_.txt'
-    file_path = os.path.join(folder_name, file_name)  # Percorso completo del file
+    file_path = os.path.join(folder_path, file_name)  # Percorso completo del file
 
     if num == 1:
         with open(file_path, 'w') as file:
@@ -158,12 +172,10 @@ def save_plot_with_progressive(x, y, ypullback, labelx='r', labely='r*', frase='
     plt.legend()
     plt.grid(True)
 
-    # Crea la cartella se non esiste
-    if not os.path.exists(save_folder):
-        os.makedirs(save_folder)
+    save_path = save_folder if os.path.isabs(save_folder) else ensure_output_subdir(save_folder)
 
     pattern = r'rstar_' + REX.escape(word) + r'_(\d+)\.png$'
-    filename = next_progressive_plot_path(save_folder, REX.compile(pattern), f"rstar_{word}_")
+    filename = next_progressive_plot_path(save_path, REX.compile(pattern), f"rstar_{word}_")
 
     # Salvataggio del plot
     plt.savefig(filename)
@@ -284,7 +296,7 @@ if __name__ == "__main__":
         kc, ko, ke = ki
 
         # Scrivo i valori dei parametri su un file
-        with open(f'qnms_parameters_.txt', 'w') as file:
+        with open(out_path('qnms_parameters_.txt'), 'w') as file:
             file.write(f'{M}\n{L}\n{hrad}\n{hstar}\n{lettera}\n{re}\n{rc}\n{ke}')
 
         # Let's ask the user what derivative he wants to exteem
@@ -343,9 +355,10 @@ if __name__ == "__main__":
         plt.title('Directly computed r*(r) : r vs r*')
         plt.legend()
         fileName = f'tortoisePlot_{M}_{L}_{tol}_{ratio}_.png'
-        os.makedirs("TORTOISE_INVERSION_PLOTS", exist_ok=True)
-        plt.savefig(f'TORTOISE_INVERSION_PLOTS/{fileName}')
-        print(f'Plot saved in {fileName}')
+        plot_dir = ensure_output_subdir("TORTOISE_INVERSION_PLOTS")
+        plot_path = os.path.join(plot_dir, fileName)
+        plt.savefig(plot_path)
+        print(f'Plot saved in {plot_path}')
         show_or_close()
         
         # Stampa riga bianca per tutta la larghezza della pagina

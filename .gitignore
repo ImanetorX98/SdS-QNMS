@@ -18,6 +18,7 @@ qnms_tortoise_inversion_results_.txt
 *.log
 
 # Generated output folders
+out/
 QNMS_PLOTS/
 QNMS_FREQUENCY_PLOT/
 QNMS_PDE_SOL/
@@ -30,4 +31,3 @@ QNMS_CONVERGENCE_ANALYSIS/
 SpaceTimeProfile/
 TORTOISE_INVERSION_OUTPUT/
 TORTOISE_INVERSION_PLOTS/
-
