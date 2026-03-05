@@ -1,4 +1,4 @@
-# AI_enhanced
+# SdS-QNMs
 
 Toolkit Python per lo studio dei Quasi-Normal Modes (QNMs) in spazio-tempo di Schwarzschild-de Sitter (SdS), con:
 
@@ -25,7 +25,7 @@ Toolkit Python per lo studio dei Quasi-Normal Modes (QNMs) in spazio-tempo di Sc
 Installa i pacchetti da `requirements.txt`:
 
 ```bash
-cd AI_enhanced
+cd SdS-QNMs
 python3 -m venv .venv
 source .venv/bin/activate
 pip install --upgrade pip
@@ -35,7 +35,7 @@ pip install -r requirements.txt
 Se usi conda, puoi anche installare direttamente senza `venv`:
 
 ```bash
-cd AI_enhanced
+cd SdS-QNMs
 pip install -r requirements.txt
 ```
 
@@ -44,7 +44,7 @@ pip install -r requirements.txt
 1. Genera inversione tortoise e parametri:
 
 ```bash
-cd AI_enhanced
+cd SdS-QNMs
 python3 tortoise_inversion.py
 ```
 
